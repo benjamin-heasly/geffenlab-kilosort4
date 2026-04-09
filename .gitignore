@@ -1,0 +1,7 @@
+/data/
+.vscode/
+.DS_Store
+
+scratch.py
+results/
+kilosort_test_data/

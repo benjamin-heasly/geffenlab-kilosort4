@@ -1,0 +1,11 @@
+name: kilosort4
+dependencies:
+  - python=3.11
+  - pip=24.0
+  - pip:
+    - --extra-index-url https://download.pytorch.org/whl/cu118
+    - torch==2.7.1+cu118
+    - torchvision==0.22.1+cu118
+    - torchaudio==2.7.1+cu118
+    - kilosort==4.0.38
+    - probeinterface==0.3.2

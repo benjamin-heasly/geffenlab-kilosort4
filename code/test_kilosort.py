@@ -34,7 +34,7 @@ print(f"device {device}")
 print(f"settings {settings}")
 
 # Choose neural data to sort.
-input_bin = Path('~', '.kilosort', '.test_data', 'ZFM-02370_mini.imec0.ap.short.bin').expanduser()
+input_bin = Path('/kilosort_test_data/ZFM-02370_mini.imec0.ap.short.bin')
 print(f"input bin {input_bin}")
 
 # Configure the probe geometry.
@@ -42,14 +42,14 @@ print(f"input bin {input_bin}")
 # NeuroPix1_default.mat
 # Linear16x1_test.mat
 probe_name = 'NeuroPix1_default.mat'
-probe_path = Path('~', '.kilosort', 'probes', probe_name).expanduser()
+probe_path = Path('/kilosort_test_data', 'probes', probe_name)
 print(f"probe_path {probe_path}")
 
 probe = load_probe(probe_path)
 print(f"probe {probe}")
 
 # Sort.
-results_dir = Path("~", '.kilosort', "results").expanduser()
+results_dir = Path("/results")
 print(f"results_dir {results_dir}")
 
 results = run_kilosort(
