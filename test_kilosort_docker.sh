@@ -6,7 +6,7 @@ docker pull spikeinterface/kilosort4-base:latest
 # docker run --rm spikeinterface/kilosort4-base env | grep HOME
 # /root
 
-# CPU mode (17 min)
+# CPU mode (17 min on thinkpad)
 # Run local script inside the kilosort4 container.
 docker run \
   --rm \
@@ -15,6 +15,19 @@ docker run \
   spikeinterface/kilosort4-base \
   python /kilosort-test/test_kilosort.py
 
+---
+
+# NVIDIA mode (65 sec on cortex)
+# Run local script inside the kilosort4 container.
+docker run \
+  --rm \
+  --gpus all \
+  --volume "$PWD":"/kilosort-test" \
+  --volume "$HOME/.kilosort":"/root/.kilosort" \
+  spikeinterface/kilosort4-base \
+  python /kilosort-test/test_kilosort.py
+
+---
 
 # Install AMD GPU stuff
 https://rocm.docs.amd.com/projects/install-on-linux/en/latest/install/quick-start.html#rocm-install-quick

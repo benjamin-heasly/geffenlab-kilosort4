@@ -1,4 +1,4 @@
-sudo rm -rf ~/.kilosort
+rm -rf ~/.kilosort
 
 mkdir -p ~/.kilosort/.test_data
 wget https://osf.io/download/67effd64f74150d8738b7f34/ -O ~/.kilosort/.test_data/ZFM-02370_mini.imec0.ap.short.bin.zip
