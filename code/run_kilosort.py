@@ -105,73 +105,76 @@ def find_probes_and_sort(
     logging.info(f"Using PyTorch device: {device}")
 
     # If we never find a recording to sort, raise an error at the end.
-    probe_count = 0
+    recording_count = 0
 
     for probe_id in probe_ids:
         logging.info(f"Looking for probe {probe_id}")
-        ap_meta_path = find_one(ap_meta_pattern, probe_id, none_ok=True, parent=input_path)
-        if ap_meta_path is None:
-            logging.info(f"No match for {probe_id}")
+        ap_meta_matches = find(ap_meta_pattern, probe_id, parent=input_path)
+        logging.info(f"Found {len(ap_meta_matches)} matches for probe {probe_id}: {ap_meta_matches}")
+
+        if not ap_meta_matches:
             continue
-        logging.info(f"Found probe metadata: {ap_meta_path}")
-
-        metadata = parse_meta(ap_meta_path)
-        binary_channel_count = metadata['nSavedChans']
-        logging.info(f"Expecting binary recording with {binary_channel_count} saved channels.")
-
-        ab_bin_path = ap_meta_path.with_suffix(".bin")
-        if not ab_bin_path.exists():
-            logging.info(f"No binary recording found at {ab_bin_path}")
-            continue
-        logging.info(f"Found binary recording: {ab_bin_path}")
-
-        # Count up matched probes for summary and/or error at the end.
-        probe_count += 1
-
-        # Save results for each probe in a separate subdir.
-        probe_relative_path = ap_meta_path.parent.relative_to(input_path)
-        probe_results_path = Path(results_path, probe_relative_path)
-        probe_results_path.mkdir(exist_ok=True, parents=True)
-
-        # Convert SpikeGlx .meta probe description to Kilosort 4 .prb format.
-        prb_path = Path(probe_results_path, ap_meta_path.with_suffix(".prb").name)
-        logging.info(f"Converting '{ap_meta_path}' to '{prb_path}'")
-        probe_info = read_spikeglx(ap_meta_path)
-        probe_group = ProbeGroup()
-        probe_group.add_probe(probe_info)
-        write_prb(prb_path, probe_group)
-        logging.info(f"Loading probe: {prb_path}")
-        kilosort4_probe = load_probe(prb_path)
 
         # Find probe-specific or default Kilosort 4 settings.
         kilosort_settings_path = find_one(kilosort_settings_pattern, probe_id, none_ok=True, parent=input_path)
         if kilosort_settings_path is None:
-            logging.warning("Using default Kilosort 4 settings.")
+            logging.warning(f"Using default Kilosort 4 settings for probe {probe_id}.")
             kilosort_settings = DEFAULT_SETTINGS
         else:
-            logging.info(f"Loading Kilosort 4 settings from JSON: {kilosort_settings_path}")
+            logging.info(f"Loading Kilosort 4 settings from JSON for probe {probe_id}: {kilosort_settings_path}")
             with open(kilosort_settings_path, 'r') as settings_in:
                 kilosort_settings = json.load(settings_in)
 
-        # Record the effective settings used for this probe.
-        kilosort_settings["n_chan_bin"] = binary_channel_count
-        effective_settings_path = Path(probe_results_path, f"{probe_id}-kilosort4-effective-settings.json")
-        logging.info(f"Saving effective Kilosort 4 settings: {effective_settings_path}")
-        with open(effective_settings_path, 'w') as settings_out:
-            json.dump(kilosort_settings, settings_out)
+        # We might have multiple recordings for the same prove, from multiple SpikeGlx runs.
+        for ap_meta_path in ap_meta_matches:
+            logging.info(f"Reading probe metadata: {ap_meta_path}")
+            metadata = parse_meta(ap_meta_path)
+            binary_channel_count = metadata['nSavedChans']
+            logging.info(f"Expecting binary recording with {binary_channel_count} saved channels.")
 
-        logging.info(f"Begin sorting for {probe_id}")
-        run_kilosort(
-            device=device,
-            settings=kilosort_settings,
-            filename=ab_bin_path,
-            probe=kilosort4_probe,
-            results_dir=probe_results_path
-        )
-        logging.info(f"Completed sorting for {probe_id}")
+            ab_bin_path = ap_meta_path.with_suffix(".bin")
+            if not ab_bin_path.exists():
+                logging.info(f"No binary recording found at {ab_bin_path}")
+                continue
+            logging.info(f"Found binary recording: {ab_bin_path}")
 
-    logging.info(f"Completed sorting for {probe_count} probes.")
-    if probe_count < 1:
+            # Count up matched probes for summary or error at the end.
+            recording_count += 1
+
+            # Save results for each probe in a separate subdir.
+            recording_relative_path = ap_meta_path.parent.relative_to(input_path)
+            recording_results_path = Path(results_path, recording_relative_path)
+            recording_results_path.mkdir(exist_ok=True, parents=True)
+
+            # Convert SpikeGlx .meta probe description to Kilosort 4 .prb format.
+            prb_path = Path(recording_results_path, ap_meta_path.with_suffix(".prb").name)
+            logging.info(f"Converting '{ap_meta_path}' to '{prb_path}'")
+            probe_info = read_spikeglx(ap_meta_path)
+            probe_group = ProbeGroup()
+            probe_group.add_probe(probe_info)
+            write_prb(prb_path, probe_group)
+            logging.info(f"Loading probe: {prb_path}")
+            kilosort4_probe = load_probe(prb_path)
+
+            # Record the effective settings used for this probe.
+            kilosort_settings["n_chan_bin"] = binary_channel_count
+            effective_settings_path = Path(recording_results_path, f"{probe_id}-kilosort4-effective-settings.json")
+            logging.info(f"Saving effective Kilosort 4 settings: {effective_settings_path}")
+            with open(effective_settings_path, 'w') as settings_out:
+                json.dump(kilosort_settings, settings_out)
+
+            logging.info(f"Begin sorting for {probe_id} recording {recording_relative_path}")
+            run_kilosort(
+                device=device,
+                settings=kilosort_settings,
+                filename=ab_bin_path,
+                probe=kilosort4_probe,
+                results_dir=recording_results_path
+            )
+            logging.info(f"Completed sorting for {probe_id} recording {recording_relative_path}")
+
+    logging.info(f"Completed sorting for {recording_count} probes.")
+    if recording_count < 1:
         raise ValueError(f"Found no recordings matching probe ids: {probe_ids}")
 
 
