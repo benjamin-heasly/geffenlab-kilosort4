@@ -3,8 +3,6 @@
 # Except the SpikeInterface image is not using Conda correctly!
 FROM nvidia/cuda:12.0.0-base-ubuntu20.04
 
-# Do we neeed libfftw3-dev ?
-
 # Install a few system dependencies, clean up cache and temp files along the way.
 RUN export DEBIAN_FRONTEND=noninteractive \
     && apt update \
@@ -22,8 +20,10 @@ RUN wget https://repo.anaconda.com/miniconda/Miniconda3-py311_24.5.0-0-Linux-x86
 COPY environment/environment.yml .
 RUN /opt/miniconda/bin/conda env create -f environment.yml
 
-#COPY code/run.py /opt/code/run.py
-#ENTRYPOINT ["/opt/miniconda/bin/conda", "run", "--no-capture-output", "-n", "kilosort4", "python", "/opt/code/run.py"]
+# Give Matplotlib a writeable, user-independent cache directory.
+# https://matplotlib.org/stable/install/environment_variables_faq.html
+ENV MPLCONFIGDIR=/tmp/matplotlib
+RUN mkdir $MPLCONFIGDIR && chmod a+w $MPLCONFIGDIR
 
-COPY /code/test_kilosort.py /opt/code/test_kilosort.py
-ENTRYPOINT ["/opt/miniconda/bin/conda", "run", "--no-capture-output", "-n", "kilosort4", "python", "/opt/code/test_kilosort.py"]
+COPY code/run_kilosort.py /opt/code/run_kilosort.py
+ENTRYPOINT ["/opt/miniconda/bin/conda", "run", "--no-capture-output", "-n", "kilosort4", "python", "/opt/code/run_kilosort.py"]

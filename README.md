@@ -1,11 +1,12 @@
 # geffenlab-kilosort4
 
-Contains Kilosort 4, based on existing [SpikeInterface Docker image for Kilosort4](https://hub.docker.com/r/spikeinterface/kilosort4-base/tags) with NVIDIA version of pytorch.
+Docker image with Kilosort 4 and its dependencies, including the NVIDIA/CUDA version of pytorch, plus NVIDIA/CUDA dependencies from the [nvidia/cuda:12.0.0-base-ubuntu20.04](https://hub.docker.com/layers/nvidia/cuda/12.0.0-base-ubuntu20.04/images/sha256-efe596aa8220ab63b03b5d0ea873c7bd862ff2ee2f2ee2d8a789ff3b7eeb261f) base layer.
 
-Adds Python CLI entrypoint for handling pipeline integration, for example:
- - deteting one or more probes to sort
- - converting SpikeGLX probe metadata 
-
+Adds Python CLI entrypoint to help with pipeline integration, things like:
+ - finding one or more probes within an input run directory
+ - converting SpikeGLX `.meta` files to the `.prb` format used by Kilosort
+ - associating each probe with a document of Kilosort 4 parameters
+ - writing sorting outputs to a configurable directory, allowing input run director to be read-only
 
 # Building Docker image versions
 
@@ -13,7 +14,7 @@ This repo is configured to automatically build and publish a new Docker image ve
 
 ## Published versions
 
-The published images are located in the GitHub Container Registry as [geffenlab-kilosort4](https://github.com/benjamin-heasly/geffenlab-bombcell/pkgs/container/geffenlab-kilosort4).  You can find the latest published version at this page.
+The published images are located in the GitHub Container Registry as [geffenlab-kilosort4](https://github.com/benjamin-heasly/geffenlab-kilosort4/pkgs/container/geffenlab-kilosort4).  You can find the latest published version at this page.
 
 You can access published images using their full names.  For version `v0.0.4` the full name would be `ghcr.io/benjamin-heasly/geffenlab-kilosort4:v0.0.4`.
 
