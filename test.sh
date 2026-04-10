@@ -22,7 +22,7 @@ docker run --rm \
   --volume $PWD/results:$PWD/results \
   --volume $PWD/sample_data:$PWD/sample_data \
   --workdir $PWD/sample_data \
-  geffenlab/kilosort4:local --results-dir $PWD/results
+  ghcr.io/benjamin-heasly/geffenlab-kilosort4:local --results-dir $PWD/results
 
 # Expect several files produced.
 ls results/imec0/AS20_03112025_trainingSingle6Tone2024_Snk3.1_g0_t0.imec0.ap.prb

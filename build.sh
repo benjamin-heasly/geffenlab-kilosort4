@@ -2,4 +2,4 @@
 
 set -e
 
-docker build -f environment/Dockerfile -t geffenlab/kilosort4:local .
+docker build -f environment/Dockerfile -t ghcr.io/benjamin-heasly/geffenlab-kilosort4:local .
