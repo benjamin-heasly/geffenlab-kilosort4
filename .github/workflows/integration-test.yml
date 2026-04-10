@@ -16,6 +16,4 @@ jobs:
     - name: Build and Test
       shell: bash -el {0}
       run: |
-        pwd
-        ls -alth
-        ./test
+        ./test.sh
