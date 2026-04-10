@@ -15,5 +15,7 @@ jobs:
 
     - name: Build and Test
       shell: bash -el {0}
-      working-directory: ./geffenlab-kilosort4
-      run: ./test
+      run: |
+        pwd
+        ls -alth
+        ./test
