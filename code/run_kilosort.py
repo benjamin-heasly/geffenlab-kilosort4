@@ -88,6 +88,7 @@ def parse_meta(
 
 
 def find_probes_and_sort(
+    input_path: Path,
     probe_ids: list[str],
     ap_meta_pattern: str,
     kilosort_settings_pattern: str,
@@ -108,7 +109,7 @@ def find_probes_and_sort(
 
     for probe_id in probe_ids:
         logging.info(f"Looking for probe {probe_id}")
-        ap_meta_path = find_one(ap_meta_pattern, probe_id, none_ok=True)
+        ap_meta_path = find_one(ap_meta_pattern, probe_id, none_ok=True, parent=input_path)
         if ap_meta_path is None:
             logging.info(f"No match for {probe_id}")
             continue
@@ -128,7 +129,8 @@ def find_probes_and_sort(
         probe_count += 1
 
         # Save results for each probe in a separate subdir.
-        probe_results_path = Path(results_path, probe_id)
+        probe_relative_path = ap_meta_path.parent.relative_to(input_path)
+        probe_results_path = Path(results_path, probe_relative_path)
         probe_results_path.mkdir(exist_ok=True, parents=True)
 
         # Convert SpikeGlx .meta probe description to Kilosort 4 .prb format.
@@ -142,7 +144,7 @@ def find_probes_and_sort(
         kilosort4_probe = load_probe(prb_path)
 
         # Find probe-specific or default Kilosort 4 settings.
-        kilosort_settings_path = find_one(kilosort_settings_pattern, probe_id, none_ok=True)
+        kilosort_settings_path = find_one(kilosort_settings_pattern, probe_id, none_ok=True, parent=input_path)
         if kilosort_settings_path is None:
             logging.warning("Using default Kilosort 4 settings.")
             kilosort_settings = DEFAULT_SETTINGS
@@ -179,6 +181,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = ArgumentParser(description="Find one or more SpikeGLX recordings/probes and sort with Kilosort 4.")
 
     parser.add_argument(
+        "--input-dir",
+        type=str,
+        help="Where to search for input files, including recordings. (default: %(default)s)",
+        default="catgt"
+    )
+    parser.add_argument(
         "--probe-ids",
         type=str,
         nargs="+",
@@ -188,26 +196,28 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument(
         "--ap-meta-pattern",
         type=str,
-        help="Glob pattern used to search for one or more SpikeGLX recordings/probes. (default: %(default)s)",
+        help="Glob pattern used to search INPUT_DIR for one or more SpikeGLX recordings/probes. (default: %(default)s)",
         default="**/*.ap.meta"
     )
     parser.add_argument(
         "--kilosort-settings-pattern",
         type=str,
-        help="Glob pattern used to search for JSON files with Kilosort 4 settings. (default: %(default)s)",
+        help="Glob pattern used to search INPUT_DIR for JSON files with Kilosort 4 settings. (default: %(default)s)",
         default="**/*-kilosort4-settings.json"
     )
     parser.add_argument(
-        "--results-dir", "-r",
+        "--results-dir",
         type=str,
-        help="Where to write output result files (can be distinct from the input dirs). (default: %(default)s)",
+        help="Where to write output result files (can be distinct from INPUT_DIR). (default: %(default)s)",
         default="results"
     )
 
     cli_args = parser.parse_args(argv)
+    input_path = Path(cli_args.input_dir)
     results_path = Path(cli_args.results_dir)
     try:
         find_probes_and_sort(
+            input_path,
             cli_args.probe_ids,
             cli_args.ap_meta_pattern,
             cli_args.kilosort_settings_pattern,

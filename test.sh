@@ -22,10 +22,12 @@ docker run --rm \
   --volume $PWD/results:$PWD/results \
   --volume $PWD/sample_data:$PWD/sample_data \
   --workdir $PWD/sample_data \
-  ghcr.io/benjamin-heasly/geffenlab-kilosort4:local --results-dir $PWD/results
+  ghcr.io/benjamin-heasly/geffenlab-kilosort4:local \
+  --input-dir $PWD/sample_data/AS20-minimal3/03112025/ecephys \
+  --results-dir $PWD/results
 
 # Expect several files produced.
-ls results/imec0/AS20_03112025_trainingSingle6Tone2024_Snk3.1_g0_t0.imec0.ap.prb
-ls results/imec0/imec0-kilosort4-effective-settings.json
-ls results/imec0/kilosort4.log
-ls results/imec0/params.py
+ls results/AS20_03112025_trainingSingle6Tone2024_Snk3.1_g0/AS20_03112025_trainingSingle6Tone2024_Snk3.1_g0_imec0/AS20_03112025_trainingSingle6Tone2024_Snk3.1_g0_t0.imec0.ap.prb
+ls results/AS20_03112025_trainingSingle6Tone2024_Snk3.1_g0/AS20_03112025_trainingSingle6Tone2024_Snk3.1_g0_imec0/imec0-kilosort4-effective-settings.json
+ls results/AS20_03112025_trainingSingle6Tone2024_Snk3.1_g0/AS20_03112025_trainingSingle6Tone2024_Snk3.1_g0_imec0/kilosort4.log
+ls results/AS20_03112025_trainingSingle6Tone2024_Snk3.1_g0/AS20_03112025_trainingSingle6Tone2024_Snk3.1_g0_imec0/params.py
