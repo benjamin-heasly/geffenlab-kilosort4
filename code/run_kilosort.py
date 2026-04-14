@@ -130,7 +130,8 @@ def find_probes_and_sort(
             logging.info(f"Reading probe metadata: {ap_meta_path}")
             metadata = parse_meta(ap_meta_path)
             binary_channel_count = metadata['nSavedChans']
-            logging.info(f"Expecting binary recording with {binary_channel_count} saved channels.")
+            binary_sample_rate = metadata['imSampRate']
+            logging.info(f"Expecting binary recording with {binary_channel_count} saved channels at {binary_sample_rate}Hz.")
 
             ab_bin_path = ap_meta_path.with_suffix(".bin")
             if not ab_bin_path.exists():
@@ -158,6 +159,7 @@ def find_probes_and_sort(
 
             # Record the effective settings used for this probe.
             kilosort_settings["n_chan_bin"] = binary_channel_count
+            kilosort_settings["fs"] = binary_sample_rate
             effective_settings_path = Path(recording_results_path, f"{probe_id}-kilosort4-effective-settings.json")
             logging.info(f"Saving effective Kilosort 4 settings: {effective_settings_path}")
             with open(effective_settings_path, 'w') as settings_out:
