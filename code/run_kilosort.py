@@ -125,7 +125,7 @@ def find_probes_and_sort(
             with open(kilosort_settings_path, 'r') as settings_in:
                 kilosort_settings = json.load(settings_in)
 
-        # We might have multiple recordings for the same prove, from multiple SpikeGlx runs.
+        # We might have multiple recordings for the same probe, from multiple SpikeGlx runs.
         for ap_meta_path in ap_meta_matches:
             logging.info(f"Reading probe metadata: {ap_meta_path}")
             metadata = parse_meta(ap_meta_path)
@@ -195,7 +195,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "--probe-ids",
         type=str,
         nargs="+",
-        help="One or more probe ids to consider for sorting and for associating probes with Kilosort parameters. (default: %(default)s)",
+        help="One or more probe ids to consider for sorting and for associating probes with Kilosort settings. (default: %(default)s)",
         default=["imec0", "imec1"]
     )
     parser.add_argument(
